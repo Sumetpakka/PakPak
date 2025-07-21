@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Olivia Animation2</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const scale = 150;
+  const message = "Olivia so cute";
+  const fontSize = 14;
+
+  ctx.font = `${fontSize}px Arial`;
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ff69b4";
+
+  let angle3D = 0;
+
+  function heart3D(t) {
+    // 3D heart path
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+    const z = Math.sin(t * 3); // ความลึก
+
+    return { x, y, z };
+  }
+
+  function project3D(x, y, z, angle) {
+    // หมุนแกน Y ให้ดูมีมิติ
+    const rotatedX = x * Math.cos(angle) - z * Math.sin(angle);
+    const rotatedZ = x * Math.sin(angle) + z * Math.cos(angle);
+
+    const perspective = scale / (scale + rotatedZ);
+    return {
+      x: centerX + rotatedX * perspective * 10,
+      y: centerY - y * perspective * 10,
+      alpha: perspective
+    };
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (let t = 0; t < Math.PI * 2; t += 0.05) {
+      const pos3D = heart3D(t);
+      const screen = project3D(pos3D.x, pos3D.y, pos3D.z, angle3D);
+      ctx.globalAlpha = screen.alpha;
+      ctx.fillText(message, screen.x, screen.y);
+    }
+
+    angle3D += 0.0125; // ปรับความเร็วหมุน
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+</script>
+</body>
+</html>
